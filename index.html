@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Webhook Events</title>
+</head>
+<body>
+    <h1>Latest Repo Events</h1>
+    <div id="events"></div>
+    <script>
+        async function fetchEvents() {
+            const res = await fetch('/events');
+            const data = await res.json();
+            const container = document.getElementById('events');
+            container.innerHTML = '';
+            data.forEach(e => {
+                let line = '';
+                const date = new Date(e.timestamp).toUTCString();
+                if (e.type === 'push') {
+                    line = e.author + ' pushed to ' + e.to_branch + ' on ' + date;
+                } else if (e.type === 'pull_request') {
+                    line = e.author + ' submitted a pull request from ' + e.from_branch + ' to ' + e.to_branch + ' on ' + date;
+                } else if (e.type === 'merge') {
+                    line = e.author + ' merged branch ' + e.from_branch + ' to ' + e.to_branch + ' on ' + date;
+                }
+                container.innerHTML += '<p>' + line + '</p>';
+            });
+        }
+        fetchEvents();
+        setInterval(fetchEvents, 15000);
+    </script>
+</body>
+</html>
